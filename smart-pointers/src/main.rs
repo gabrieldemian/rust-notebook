@@ -32,7 +32,7 @@ impl<T> Default for Bst<T> {
 
 impl<T> Bst<T>
 where
-    T: Ord + Sized + PartialOrd + Clone,
+    T: Ord + Sized + PartialOrd + Clone + std::fmt::Debug,
 {
     fn new() -> Self {
         Default::default()
@@ -44,38 +44,34 @@ where
     }
 
     fn insert(&mut self, value: T) {
-        let new_node = Box::new(Node {
-            value,
-            left: None,
-            right: None,
-        });
-        self.push_node(new_node, self.root);
+        println!("insert - value {:?}", value);
+        println!("insert - self {:?}", self);
+        let new_node = Box::new(Node::from_value(value));
+        Self::push_node(new_node, &mut self.root);
     }
 
-    fn push_node(&mut self, new_node: Box<Node<T>>, curr_node: &mut Option<Box<Node<T>>>) {
+    fn push_node(new_node: Box<Node<T>>, curr_node: &mut Option<Box<Node<T>>>) {
         if let Some(node) = curr_node {
-            match node.value.cmp(&new_node.value) {
+            match &new_node.value.cmp(&node.value) {
                 Ordering::Less | Ordering::Equal => {
-                    // if the lesser value is larger than the current one
-                    // means that the tree is unbalanced
-                    if node.value > new_node.value {
-                        let node_holder = node.clone();
-                        // swap curr node with the new node
-                        node.value = new_node.value.clone();
-                        // restart iteration with the swapped node at the root
-                        let root_as_node = Box::new(Node {
-                            value: self.root.clone().unwrap().value,
-                            left: self.root.clone().unwrap().left,
-                            right: self.root.clone().unwrap().right,
-                        });
-                        self.push_node(node_holder, &mut Some(root_as_node));
-                    } else {
-                        self.push_node(new_node, &mut node.left);
-                    }
+                    //
+                    Self::push_node(new_node, &mut node.left);
                 }
-                Ordering::Greater => self.push_node(new_node, &mut node.right),
+                Ordering::Greater => {
+                    println!(
+                        "if - new_node {:?} to node.right {:?}",
+                        new_node, node.right
+                    );
+                    Self::push_node(new_node, &mut node.right);
+                }
             }
         } else {
+            // here, curr_node is None, because it is
+            // a new Node that will be added to the tree.
+            println!("else - new_node {:?}", new_node);
+            println!("else - curr_node {:?}", curr_node);
+            // insert new_node into `right` or `left`
+            // of the curr_node. Making it a Some.
             curr_node.insert(new_node);
         }
     }
@@ -83,9 +79,7 @@ where
 
 fn main() {
     let mut tree = Bst::from_value(3);
+    tree.insert(5);
     tree.insert(4);
-    tree.insert(1);
-    tree.insert(12);
-    tree.insert(2);
     println!("{:#?}", tree);
 }
