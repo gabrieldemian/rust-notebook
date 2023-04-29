@@ -1,0 +1,15 @@
+[workspace]
+members = [
+  "lifetimes",
+  "dynamic-dispatch",
+  "apis",
+  "channels",
+  "smart-pointers"
+]
+
+[workspace.dependencies]
+lifetimes = { path = "lifetimes" }
+dynamic-dispatch = { path = "dynamic-dispatch" }
+apis = { path = "apis" }
+channels = { path = "channels" }
+smart-pointers = { path = "smart-pointers" }
