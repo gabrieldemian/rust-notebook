@@ -7,6 +7,10 @@ name = "apis"
 version = "0.1.0"
 
 [[package]]
+name = "binary-tree"
+version = "0.1.0"
+
+[[package]]
 name = "channels"
 version = "0.1.0"
 
@@ -16,6 +20,10 @@ version = "0.1.0"
 
 [[package]]
 name = "lifetimes"
+version = "0.1.0"
+
+[[package]]
+name = "lists"
 version = "0.1.0"
 
 [[package]]

@@ -1,15 +1,26 @@
-use std::{cmp::Ordering, ops::ControlFlow};
+use std::cmp::Ordering;
 
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct Node<T> {
+#[derive(Clone, Hash, Default, Debug, Eq, Ord, PartialEq, PartialOrd)]
+struct Node<T> {
     value: T,
     left: Option<Box<Node<T>>>,
     right: Option<Box<Node<T>>>,
 }
 
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct Bst<T> {
+    root: Option<Box<Node<T>>>,
+}
+
+impl<T> Default for Bst<T> {
+    fn default() -> Self {
+        Self { root: None }
+    }
+}
+
 impl<T> Node<T>
 where
-    T: Ord + Sized + PartialOrd + Clone + std::fmt::Debug,
+    T: Ord + Clone + std::fmt::Debug,
 {
     fn leaf(value: T) -> Self {
         Self {
@@ -17,17 +28,6 @@ where
             left: None,
             right: None,
         }
-    }
-
-    pub fn traverse<B>(&self, f: &mut impl FnMut(&T) -> ControlFlow<B>) -> ControlFlow<B> {
-        if let Some(left) = &self.left {
-            left.traverse(f)?;
-        }
-        f(&self.value)?;
-        if let Some(right) = &self.right {
-            right.traverse(f)?;
-        }
-        ControlFlow::Continue(())
     }
 
     pub fn find(&self, predicate: T) -> Option<Box<Node<T>>> {
@@ -55,25 +55,10 @@ where
     }
 }
 
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub struct Bst<T> {
-    root: Option<Box<Node<T>>>,
-}
-
-impl<T> Default for Bst<T> {
-    fn default() -> Self {
-        Self { root: None }
-    }
-}
-
 impl<T> Bst<T>
 where
-    T: Ord + Sized + PartialOrd + Clone + std::fmt::Debug,
+    T: Ord + std::fmt::Debug + Clone,
 {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
     pub fn from_value(value: T) -> Self {
         let root = Box::new(Node::leaf(value));
         Self { root: Some(root) }
@@ -83,17 +68,6 @@ where
         let new_node = Box::new(Node::leaf(value));
         Self::push_node(new_node, &mut self.root);
     }
-
-    // pub fn find(&mut self, predicate: T) -> Option<Box<Node<T>>> {
-    //     if let Some(node) = &self.root {
-    //         match &predicate.cmp(&node.value) {
-    //             Ordering::Less => {}
-    //             Ordering::Equal => {}
-    //             Ordering::Greater => {}
-    //         }
-    //     }
-    //     return None;
-    // }
 
     fn push_node(mut new_node: Box<Node<T>>, curr_node: &mut Option<Box<Node<T>>>) {
         if let Some(node) = curr_node {
@@ -138,7 +112,7 @@ mod tests {
         tree.insert(6);
         tree.insert(1);
         tree.insert(2);
-        // println!("{:#?}", tree);
+        println!("{:#?}", tree);
     }
 
     #[test]
@@ -147,8 +121,9 @@ mod tests {
         tree.insert(5);
         tree.insert(4);
         let found = tree.root.unwrap().find(5);
+        // let found2 = tree.find(5);
 
-        println!("found {:#?}", found);
+        println!("-- found {:#?}", found);
     }
 
     #[test]
@@ -157,12 +132,5 @@ mod tests {
         tree.insert(5);
         tree.insert(4);
         tree.insert(2);
-        tree.root.unwrap().traverse(&mut |node| {
-            // println!("wtf {:?}", node);
-            // if *node == 5 {
-            //     return ControlFlow::Break(*node);
-            // }
-            ControlFlow::Continue::<i32>(())
-        });
     }
 }
